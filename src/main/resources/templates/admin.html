@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Certificate System</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f5f5f5; }
+        .navbar { background: #dc3545; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .navbar h1 { font-size: 24px; }
+        .navbar-right { display: flex; gap: 20px; align-items: center; }
+        .navbar a { color: white; text-decoration: none; padding: 8px 15px; border-radius: 5px; }
+        .navbar a:hover { background: rgba(255,255,255,0.2); }
+        .container { max-width: 1400px; margin: 30px auto; padding: 0 20px; }
+        .grid { display: grid; grid-template-columns: 1fr 2fr; gap: 30px; }
+        .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        h2 { color: #333; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; color: #555; font-weight: bold; }
+        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        button { width: 100%; padding: 12px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #c82333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #f8f9fa; font-weight: bold; color: #555; }
+        .btn-delete { background: #dc3545; color: white; padding: 5px 10px; border-radius: 3px; text-decoration: none; font-size: 12px; }
+        .btn-delete:hover { background: #c82333; }
+        .alert { padding: 10px; margin-bottom: 20px; border-radius: 5px; }
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { color: #dc3545; font-size: 12px; margin-top: 5px; }
+        .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 30px; }
+        .stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; }
+        .stat-card h3 { font-size: 32px; margin-bottom: 5px; }
+        .stat-card p { opacity: 0.9; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>Admin Panel - SPPU DOT</h1>
+        <div class="navbar-right">
+            <a href="/verify" target="_blank">Verify Certificate</a>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="stats">
+            <div class="stat-card">
+                <h3 th:text="${certificates.size()}">0</h3>
+                <p>Total Certificates</p>
+            </div>
+            <div class="stat-card">
+                <h3 th:text="${users.size()}">0</h3>
+                <p>Total Users</p>
+            </div>
+        </div>
+        
+        <div th:if="${param.success}" class="alert alert-success">
+            Certificate created successfully!
+        </div>
+        
+        <div class="grid">
+            <div class="card">
+                <h2>Generate Certificate</h2>
+                <form th:action="@{/admin/certificates}" th:object="${certificateRequest}" method="post">
+                    <div class="form-group">
+                        <label for="recipientName">Recipient Name</label>
+                        <input type="text" id="recipientName" th:field="*{recipientName}" placeholder="e.g., John Doe">
+                        <div class="error" th:if="${#fields.hasErrors('recipientName')}" th:errors="*{recipientName}"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="recipientEmail">Recipient Email</label>
+                        <input type="email" id="recipientEmail" th:field="*{recipientEmail}" placeholder="e.g., john@example.com">
+                        <div class="error" th:if="${#fields.hasErrors('recipientEmail')}" th:errors="*{recipientEmail}"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="courseName">Event Name</label>
+                        <input type="text" id="courseName" th:field="*{courseName}" placeholder="e.g., NEXUX TANTRA 2K26">
+                        <div class="error" th:if="${#fields.hasErrors('courseName')}" th:errors="*{courseName}"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="prize">Prize/Position</label>
+                        <select id="prize" th:field="*{prize}">
+                            <option value="">Select Prize</option>
+                            <option value="First Prize">First Prize</option>
+                            <option value="Second Prize">Second Prize</option>
+                            <option value="Third Prize">Third Prize</option>
+                            <option value="Winner">Winner</option>
+                            <option value="Runner Up">Runner Up</option>
+                            <option value="Participation">Participation</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <input type="text" id="category" th:field="*{category}" placeholder="e.g., Web Development, AI/ML, IoT">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="issuerName">Issuer Name (Optional)</label>
+                        <input type="text" id="issuerName" th:field="*{issuerName}" placeholder="Leave blank for default">
+                    </div>
+                    
+                    <button type="submit">Generate Certificate</button>
+                </form>
+            </div>
+            
+            <div class="card">
+                <h2>All Certificates</h2>
+                <table th:if="${!certificates.isEmpty()}">
+                    <thead>
+                        <tr>
+                            <th>Certificate No.</th>
+                            <th>Credential ID</th>
+                            <th>Recipient</th>
+                            <th>Course</th>
+                            <th>Email Sent</th>
+                            <th>Issued Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="cert : ${certificates}">
+                            <td>
+                                <a th:href="@{/verify/{num}(num=${cert.certificateNumber})}" 
+                                   target="_blank" 
+                                   style="color: #667eea; text-decoration: none;">
+                                    <span th:text="${cert.certificateNumber}"></span>
+                                </a>
+                            </td>
+                            <td>
+                                <small style="color: #666; font-family: 'Courier New', monospace;" th:text="${cert.credentialId}">CRED-XXXX</small>
+                            </td>
+                            <td>
+                                <div th:text="${cert.recipientName}"></div>
+                                <small style="color: #666;" th:text="${cert.recipientEmail}"></small>
+                            </td>
+                            <td th:text="${cert.courseName}"></td>
+                            <td>
+                                <span th:if="${cert.emailSent}" style="color: #28a745;">✓ Sent</span>
+                                <span th:unless="${cert.emailSent}" style="color: #dc3545;">✗ Failed</span>
+                            </td>
+                            <td th:text="${#temporals.format(cert.issuedDate, 'dd-MM-yyyy')}"></td>
+                            <td>
+                                <a th:href="@{/admin/certificates/{id}/delete(id=${cert.id})}" 
+                                   class="btn-delete" 
+                                   onclick="return confirm('Are you sure?')">Delete</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p th:if="${certificates.isEmpty()}" style="text-align: center; color: #999; padding: 40px;">
+                    No certificates yet. Create one using the form.
+                </p>
+            </div>
+        </div>
+        
+        <div class="card" style="margin-top: 30px;">
+            <h2>Registered Users</h2>
+            <table th:if="${!users.isEmpty()}">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Full Name</th>
+                        <th>Roles</th>
+                        <th>Created At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="user : ${users}">
+                        <td th:text="${user.username}"></td>
+                        <td th:text="${user.email}"></td>
+                        <td th:text="${user.fullName}"></td>
+                        <td th:text="${user.roles}"></td>
+                        <td th:text="${#temporals.format(user.createdAt, 'dd-MM-yyyy HH:mm')}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

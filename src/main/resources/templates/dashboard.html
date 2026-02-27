@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Certificate System</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f5f5f5; }
+        .navbar { background: #667eea; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .navbar h1 { font-size: 24px; }
+        .navbar-right { display: flex; gap: 20px; align-items: center; }
+        .navbar a { color: white; text-decoration: none; padding: 8px 15px; border-radius: 5px; }
+        .navbar a:hover { background: rgba(255,255,255,0.2); }
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        .welcome { background: white; padding: 30px; border-radius: 10px; margin-bottom: 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .certificates { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        h2 { color: #333; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #f8f9fa; font-weight: bold; color: #555; }
+        .no-data { text-align: center; padding: 40px; color: #999; }
+        .btn { padding: 8px 15px; border-radius: 5px; text-decoration: none; display: inline-block; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5568d3; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>SPPU Department of Technology</h1>
+        <div class="navbar-right">
+            <span th:text="'Welcome, ' + ${username}"></span>
+            <a href="/verify" target="_blank">Verify Certificate</a>
+            <a href="/admin" sec:authorize="hasRole('ADMIN')">Admin Panel</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="welcome">
+            <h2>My Dashboard</h2>
+            <p>View all certificates issued in the system.</p>
+        </div>
+        
+        <div class="certificates">
+            <h2>All Certificates</h2>
+            <table th:if="${!certificates.isEmpty()}">
+                <thead>
+                    <tr>
+                        <th>Certificate Number</th>
+                        <th>Recipient Name</th>
+                        <th>Course Name</th>
+                        <th>Issued Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="cert : ${certificates}">
+                        <td th:text="${cert.certificateNumber}"></td>
+                        <td th:text="${cert.recipientName}"></td>
+                        <td th:text="${cert.courseName}"></td>
+                        <td th:text="${#temporals.format(cert.issuedDate, 'dd-MM-yyyy HH:mm')}"></td>
+                        <td>
+                            <a th:href="@{/verify/{num}(num=${cert.certificateNumber})}" 
+                               target="_blank" 
+                               class="btn btn-primary">
+                                View & Verify
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="no-data" th:if="${certificates.isEmpty()}">
+                No certificates found.
+            </div>
+        </div>
+    </div>
+</body>
+</html>

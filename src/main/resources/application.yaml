@@ -1,0 +1,57 @@
+spring:
+  application:
+    name: certificate-system
+  
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:default}
+  
+  data:
+    mongodb:
+      uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017/certificate_db}
+  
+  # Disable JPA auto-configuration since we're using MongoDB only
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration
+  
+  # Email Configuration
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+    enabled: ${MAIL_ENABLED:false}
+
+# Server Configuration
+server:
+  port: ${PORT:8080}
+
+# Application Configuration
+app:
+  name: SPPU Department of Technology
+  base-url: ${APP_BASE_URL:http://localhost:8080}
+  certificate:
+    issuer: Savitribai Phule Pune University - Department of Technology
+    prefix: SPPU-DOT
+
+---
+# Production profile for Render
+spring:
+  config:
+    activate:
+      on-profile: prod
+  data:
+    mongodb:
+      uri: ${SPRING_DATA_MONGODB_URI}

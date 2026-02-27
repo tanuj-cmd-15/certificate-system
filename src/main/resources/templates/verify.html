@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Certificate - SPPU Department of Technology</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Times New Roman', serif; background: linear-gradient(135deg, #1a5f3f 0%, #2d8659 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1100px; margin: 0 auto; }
+        .header { text-align: center; color: white; margin-bottom: 30px; }
+        .header h1 { font-size: 36px; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .header p { font-size: 18px; opacity: 0.95; }
+        .search-box { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); margin-bottom: 30px; }
+        .search-box h2 { color: #1a5f3f; margin-bottom: 20px; }
+        .search-form { display: flex; gap: 10px; }
+        .search-form input { flex: 1; padding: 15px; border: 2px solid #ddd; border-radius: 5px; font-size: 16px; }
+        .search-form button { padding: 15px 30px; background: #1a5f3f; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 16px; }
+        .search-form button:hover { background: #2d8659; }
+        .error-box { background: #f8d7da; color: #721c24; padding: 20px; border: 1px solid #f5c6cb; border-radius: 5px; text-align: center; }
+        
+        /* Certificate Design - Horizontal Landscape Format */
+        .certificate-wrapper { background: white; border-radius: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); overflow: hidden; max-width: 1400px; margin: 0 auto; }
+        .certificate-card { background: white; padding: 0; position: relative; width: 100%; aspect-ratio: 1.414 / 1; min-height: 600px; }
+        
+        /* Top Left Triangle */
+        .cert-bg-top-left { position: absolute; top: 0; left: 0; width: 0; height: 0; border-style: solid; border-width: 200px 200px 0 0; border-color: #1a5f3f transparent transparent transparent; z-index: 1; }
+        .cert-bg-top-left-overlay { position: absolute; top: 0; left: 0; width: 0; height: 0; border-style: solid; border-width: 180px 180px 0 0; border-color: #2d8659 transparent transparent transparent; z-index: 2; }
+        .cert-bg-top-left-light { position: absolute; top: 0; left: 0; width: 0; height: 0; border-style: solid; border-width: 160px 160px 0 0; border-color: #7ec99f transparent transparent transparent; z-index: 3; }
+        
+        /* Bottom Right Triangle */
+        .cert-bg-bottom-right { position: absolute; bottom: 0; right: 0; width: 0; height: 0; border-style: solid; border-width: 0 0 200px 250px; border-color: transparent transparent #1a5f3f transparent; z-index: 1; }
+        .cert-bg-bottom-right-overlay { position: absolute; bottom: 0; right: 0; width: 0; height: 0; border-style: solid; border-width: 0 0 180px 230px; border-color: transparent transparent #2d8659 transparent; z-index: 2; }
+        
+        /* Hexagonal Pattern */
+        .hexagon-pattern { position: absolute; top: 0; right: 0; width: 40%; height: 100%; background-image: repeating-linear-gradient(0deg, transparent, transparent 35px, rgba(126, 201, 159, 0.1) 35px, rgba(126, 201, 159, 0.1) 36px), repeating-linear-gradient(60deg, transparent, transparent 35px, rgba(126, 201, 159, 0.1) 35px, rgba(126, 201, 159, 0.1) 36px), repeating-linear-gradient(120deg, transparent, transparent 35px, rgba(126, 201, 159, 0.1) 35px, rgba(126, 201, 159, 0.1) 36px); z-index: 0; }
+        
+        /* Circuit Pattern */
+        .circuit-pattern { position: absolute; bottom: 30px; right: 30px; width: 150px; height: 100px; z-index: 1; }
+        .circuit-line { stroke: #1a5f3f; stroke-width: 2; fill: none; }
+        .circuit-dot { fill: #2d8659; }
+        
+        /* Content */
+        .cert-content { position: relative; z-index: 10; padding: 40px 60px; }
+        
+        /* Header */
+        .cert-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .sppu-logo { width: 70px; height: 70px; }
+        .dot-logo { width: 90px; height: auto; }
+        
+        /* Title */
+        .cert-title { text-align: center; margin: 10px 0 5px 0; }
+        .cert-title h1 { font-size: 42px; color: #1a5f3f; letter-spacing: 10px; font-weight: bold; margin-bottom: 3px; }
+        .cert-subtitle { font-size: 24px; color: #2d8659; letter-spacing: 5px; font-weight: normal; margin-bottom: 10px; }
+        
+        /* Event Badge */
+        .event-badge { background: #2d8659; color: white; padding: 10px 40px; border-radius: 25px; display: inline-block; font-size: 18px; font-weight: bold; letter-spacing: 2px; margin: 10px 0 20px 0; text-align: center; }
+        
+        /* Presented To */
+        .cert-presented { font-size: 14px; color: #333; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; margin: 20px 0 25px 0; text-align: center; }
+        
+        /* Recipient Name Box */
+        .recipient-box { border-top: 3px solid #d4af37; border-bottom: 3px solid #d4af37; padding: 18px 35px; margin: 0 auto 30px auto; max-width: 600px; text-align: center; }
+        .recipient-name { font-size: 30px; color: #1a5f3f; font-weight: bold; letter-spacing: 2px; }
+        
+        /* Achievement Text */
+        .cert-achievement { font-size: 16px; color: #333; line-height: 1.8; margin: 25px auto; max-width: 650px; text-align: center; }
+        .cert-achievement p { margin: 5px 0; }
+        .prize-text { font-weight: bold; color: #1a5f3f; }
+        .category-text { font-weight: bold; color: #2d8659; }
+        
+        /* Date and Signature Layout */
+        .bottom-section { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 40px; padding: 0 60px; }
+        
+        /* Date Section */
+        .date-section { margin: 0; }
+        .date-label { font-size: 14px; color: #666; margin-bottom: 5px; }
+        .date-value { font-size: 16px; color: #1a5f3f; font-weight: bold; }
+        
+        /* Signature Section */
+        .signature-section { text-align: center; }
+        .signature-line { width: 250px; border-top: 2px solid #1a5f3f; margin: 0 auto 12px auto; }
+        .signature-name { font-size: 16px; color: #1a5f3f; font-weight: bold; margin-bottom: 4px; letter-spacing: 1px; }
+        .signature-title { font-size: 13px; color: #666; text-transform: uppercase; letter-spacing: 1px; }
+        
+        /* Circuit SVG */
+        .circuit-svg { position: absolute; bottom: 20px; right: 20px; width: 150px; height: 100px; }
+        
+        /* Verification Badge */
+        .verification-badge { text-align: center; margin: 30px 0; padding: 20px; background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); border: 3px solid #28a745; border-radius: 10px; }
+        .verification-badge h3 { color: #28a745; font-size: 24px; margin-bottom: 10px; }
+        .verification-badge p { color: #155724; font-size: 16px; }
+        
+        /* Certificate Number */
+        .cert-number-box { background: #fff3cd; border: 2px solid #ffc107; border-radius: 8px; padding: 15px 25px; margin: 30px auto; text-align: center; max-width: 600px; }
+        .cert-number-label { color: #856404; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; }
+        .cert-number-value { font-size: 18px; color: #1a5f3f; font-weight: bold; margin-top: 5px; font-family: 'Courier New', monospace; }
+        
+        /* Actions */
+        .actions { display: flex; gap: 15px; justify-content: center; margin-top: 30px; flex-wrap: wrap; }
+        .btn { padding: 14px 30px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block; font-size: 16px; transition: all 0.3s; cursor: pointer; border: none; }
+        .btn-linkedin { background: #0077b5; color: white; }
+        .btn-linkedin:hover { background: #005885; transform: translateY(-2px); }
+        .btn-print { background: #1a5f3f; color: white; }
+        .btn-print:hover { background: #2d8659; transform: translateY(-2px); }
+        
+        .back-link { text-align: center; margin-top: 20px; }
+        .back-link a { color: white; text-decoration: none; font-size: 16px; }
+        .back-link a:hover { text-decoration: underline; }
+        
+        @media print {
+            body { background: white; }
+            .search-box, .actions, .back-link, .header, .verification-badge, .cert-number-box { display: none; }
+            .certificate-wrapper { box-shadow: none; max-width: 100%; }
+            .certificate-card { width: 297mm; height: 210mm; page-break-inside: avoid; }
+            .cert-content { padding: 30px 50px; }
+            /* Hide QR code in print */
+            img[alt="QR Code"] { display: none; }
+            @page { size: A4 landscape; margin: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 Certificate Verification Portal</h1>
+            <p>Savitribai Phule Pune University - Department of Technology</p>
+        </div>
+        
+        <div class="search-box">
+            <h2>Verify Certificate Authenticity</h2>
+            <form class="search-form" th:action="@{/verify}" method="get">
+                <input type="text" name="certNumber" placeholder="Enter Certificate Number (e.g., SPPU-DOT-20260227123456-1234)" required>
+                <button type="submit">🔍 Verify</button>
+            </form>
+        </div>
+        
+        <div th:if="${error}" class="error-box">
+            <h3>❌ Certificate Not Found</h3>
+            <p th:text="${error}"></p>
+        </div>
+        
+        <div th:if="${verified}" class="certificate-wrapper">
+            <div class="certificate-card">
+                <!-- Geometric Background -->
+                <div class="cert-bg-top-left"></div>
+                <div class="cert-bg-top-left-overlay"></div>
+                <div class="cert-bg-top-left-light"></div>
+                <div class="cert-bg-bottom-right"></div>
+                <div class="cert-bg-bottom-right-overlay"></div>
+                <div class="hexagon-pattern"></div>
+                
+                <!-- Circuit Pattern SVG -->
+                <svg class="circuit-svg" viewBox="0 0 150 100">
+                    <line x1="15" y1="50" x2="135" y2="50" class="circuit-line"/>
+                    <circle cx="45" cy="50" r="6" class="circuit-dot"/>
+                    <circle cx="75" cy="50" r="6" class="circuit-dot"/>
+                    <circle cx="105" cy="50" r="6" class="circuit-dot"/>
+                    <line x1="45" y1="50" x2="45" y2="20" class="circuit-line"/>
+                    <line x1="105" y1="50" x2="105" y2="80" class="circuit-line"/>
+                    <circle cx="45" cy="20" r="5" class="circuit-dot"/>
+                    <circle cx="105" cy="80" r="5" class="circuit-dot"/>
+                    <circle cx="135" cy="50" r="5" class="circuit-dot"/>
+                </svg>
+                
+                <div class="cert-content">
+                    <!-- Header with Logos -->
+                    <div class="cert-header">
+                        <svg class="sppu-logo" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="48" fill="none" stroke="#1a5f3f" stroke-width="2"/>
+                            <circle cx="50" cy="50" r="42" fill="none" stroke="#2d8659" stroke-width="1"/>
+                            <text x="50" y="65" font-size="45" text-anchor="middle" fill="#1a5f3f" font-family="serif" font-weight="bold">S</text>
+                        </svg>
+                        <svg class="dot-logo" viewBox="0 0 120 70">
+                            <defs>
+                                <linearGradient id="dotGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#1a5f3f;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#2d8659;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                            <rect width="120" height="70" rx="5" fill="url(#dotGrad)"/>
+                            <text x="60" y="45" font-size="24" text-anchor="middle" fill="white" font-weight="bold">DoT</text>
+                        </svg>
+                    </div>
+                    
+                    <!-- Title -->
+                    <div class="cert-title">
+                        <h1>CERTIFICATE</h1>
+                        <div class="cert-subtitle">OF APPRECIATION</div>
+                    </div>
+                    
+                    <!-- Event Badge -->
+                    <div style="text-align: center;">
+                        <div class="event-badge" th:text="${certificate.courseName}">NEXUX TANTRA 2K26</div>
+                    </div>
+                    
+                    <!-- Verification Badge (only for web view) -->
+                    <div class="verification-badge">
+                        <h3>✓ VERIFIED CERTIFICATE</h3>
+                        <p>This is an authentic certificate issued by SPPU Department of Technology</p>
+                        <p th:if="${certificate.credentialId != null}" style="margin-top: 10px; font-size: 14px;">
+                            <strong>Credential ID:</strong> <span style="font-family: 'Courier New', monospace;" th:text="${certificate.credentialId}">CRED-XXXX</span>
+                        </p>
+                    </div>
+                    
+                    <!-- Presented To -->
+                    <div class="cert-presented">THIS CERTIFICATE IS PROUDLY PRESENTED TO:</div>
+                    
+                    <!-- Recipient Name -->
+                    <div class="recipient-box">
+                        <div class="recipient-name" th:text="${certificate.recipientName}">RECIPIENT NAME</div>
+                    </div>
+                    
+                    <!-- Achievement Text -->
+                    <div class="cert-achievement">
+                        <p th:if="${certificate.prize != null and !certificate.prize.isEmpty()}">
+                            Who has secured the <span class="prize-text" th:text="${certificate.prize}">First Prize</span> prize in the
+                        </p>
+                        <p th:if="${certificate.category != null and !certificate.category.isEmpty()}">
+                            <span class="category-text" th:text="${certificate.category}">Web Development</span> category
+                        </p>
+                        <p>at the '<span th:text="${certificate.courseName}">NEXUX - TANTRA 2K26 Tech Event</span>', organized by the</p>
+                        <p><strong>Department of Technology, Savitribai Phule Pune University, Pune."</strong></p>
+                    </div>
+                    
+                    <!-- Certificate Number and Credential ID (web view only) -->
+                    <div class="cert-number-box">
+                        <div class="cert-number-label">Certificate Number</div>
+                        <div class="cert-number-value" th:text="${certificate.certificateNumber}">SPPU-DOT-20260227-1234</div>
+                        <div class="cert-number-label" style="margin-top: 15px;">Credential ID</div>
+                        <div class="cert-number-value" th:text="${certificate.credentialId}">CRED-XXXXXXXXXXXX</div>
+                    </div>
+                    
+                    <!-- QR Code (web view only) -->
+                    <div th:if="${certificate.qrCodeData != null and !certificate.qrCodeData.isEmpty()}" style="text-align: center; margin: 30px 0;">
+                        <div style="background: white; padding: 20px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                            <img th:src="${certificate.qrCodeData}" alt="QR Code" style="width: 200px; height: 200px; display: block;"/>
+                            <p style="color: #666; font-size: 14px; margin-top: 10px;">Scan to verify certificate</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Date and Signature -->
+                    <div class="bottom-section">
+                        <div class="date-section">
+                            <div class="date-label">Date:</div>
+                            <div class="date-value" th:text="${#temporals.format(certificate.issuedDate, 'dd-MM-yyyy')}">27-02-2026</div>
+                        </div>
+                        
+                        <div class="signature-section">
+                            <div class="signature-line"></div>
+                            <div class="signature-name">DR. ADITYA ABHYANKAR</div>
+                            <div class="signature-title">Head of Department</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="actions">
+                <a th:href="${certificate.linkedInShareUrl}" target="_blank" class="btn btn-linkedin">
+                    📱 Share on LinkedIn
+                </a>
+                <button onclick="window.print()" class="btn btn-print">
+                    🖨️ Print Certificate
+                </button>
+            </div>
+        </div>
+        
+        <div class="back-link">
+            <a href="/login">← Back to Login</a>
+        </div>
+    </div>
+</body>
+</html>

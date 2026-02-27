@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: sppu-certificate-system
+    env: java
+    region: singapore
+    plan: free
+    buildCommand: ./mvnw clean package -DskipTests
+    startCommand: java -Dserver.port=$PORT -jar target/certificate-system-0.0.1-SNAPSHOT.jar
+    healthCheckPath: /login
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: SPRING_DATA_MONGODB_URI
+        sync: false
+      - key: APP_BASE_URL
+        value: https://sppu-certificate-system.onrender.com
+      - key: MAIL_ENABLED
+        value: false
+      - key: PORT
+        value: 8080
